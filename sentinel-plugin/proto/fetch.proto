@@ -1,0 +1,39 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: BUSL-1.1
+
+syntax = "proto3";
+
+package protocol;
+
+option go_package = "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto";
+
+import "diagnostics/diagnostics.proto";
+import "values/values.proto";
+
+// Fetch is the service that Sentinel can use to execute callbacks
+// within the callers (such as Terraform).
+service Fetch {
+  // Get is a request to retrieve external data.
+  rpc Fetch(FetchRequest) returns (FetchResponse);
+}
+
+// FetchRequest is the message body for the Fetch RPC.
+message FetchRequest {
+  // type is the type of data being requested.
+  string type = 1;
+
+  // requests contains the data from the `requests` attribute of the external
+  // block in the configuration.
+  values.Value requests = 2;
+}
+
+// FetchResponse is the response body for the Fetch RPC.
+message FetchResponse {
+  // value should contain the populated data available to this external data
+  // block.
+  values.Value value = 1;
+
+  // diagnostics will contain additional information explaining the reason
+  // behind the returned result.
+  repeated diagnostics.Diagnostic diagnostics = 2;
+}

@@ -1,0 +1,62 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: BUSL-1.1
+
+syntax = "proto3";
+
+package types;
+
+option go_package = "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto/types";
+
+// EvaluateResult contains a single value for the overall result of the evaluate RPC.
+// This allows users to differentiate between different types of diagnostics.
+enum EvaluateResult {
+  // INVALID means the result that was set by the server wasn't recognized by
+  // the client. This means a future version of Sentinel has introduced a new
+  // result type, and the client isn't aware of this. Clients should handle
+  // this gracefully.
+  INVALID_EVALUATE_RESULT = 0;
+
+  // UNKNOWN means the result could not be verified at this time. This means
+  // the client sent unknown values to the server as part of the request, and
+  // within Terraform means the request happened at plan time. The
+  // diagnostics will contain only warnings explaning which policies could
+  // not be evaluated.
+  UNKNOWN_EVALUATE_RESULT = 1;
+
+  // ERROR means the policy files themselves were invalid in some way, and so
+  // the policies could not be evaluated. This would cover things like
+  // invalid references or invalid syntax. The diagnostics will contain
+  // errors explaining exactly what went wrong.
+  ERROR_EVALUATE_RESULT = 2;
+
+  // ALLOW means the resource passed all relevant policies. The diagnostics
+  // will not contain any errors, but might contain warnings.
+  ALLOW_EVALUATE_RESULT = 3;
+
+  // DENY means the resource failed at least one relevant policy. The
+  // diagnostics will contain exact explanations as to why and should be
+  // displayed to the user.
+  DENY_EVALUATE_RESULT = 4;
+}
+
+enum FetchResult {
+  // INVALID means the result that was set by caller was not recognized by
+  // Sentinel. The caller is using a future version of the protocol and
+  // used a result type not known to sentinel at this time. Callers should
+  // never set this directly. Sentinel will treat this result as ERROR and
+  // add a version mismatch warning to the output.
+  INVALID_FETCH_RESULT = 0;
+
+  // ERROR means there was a problem with the data provided by Sentinel.
+  // Sentinel will map this result type back to ERROR in main response,
+  // indicating a problem with the policy itself rather than the data.
+  ERROR_FETCH_RESULT = 1;
+
+  // VALID means the request was valid, but doesn't mean there are no
+  // errors in the returned diagnostics. If there are errors in the
+  // diagnostics, then Sentinel will map this result to DENY indicating
+  // the policy itself is okay but the provided data meant the resource did
+  // not pass evaluation. If there are no errors then Sentinel will use the
+  // returned value as reference data.
+  VALID_FETCH_RESULT = 2;
+}

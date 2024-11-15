@@ -1,0 +1,63 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: BUSL-1.1
+
+syntax = "proto3";
+
+package values;
+
+option go_package = "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto/values";
+
+message Type {
+
+  enum Identifier {
+    UNKNOWN_IDENTIFIER = 0;
+
+    UNKNOWN = 1;
+    STRING = 2;
+    NUMBER = 3;
+    BOOLEAN = 4;
+    OBJECT = 5;
+    TUPLE = 6;
+    LIST = 7;
+    SET = 8;
+    MAP = 9;
+  }
+
+  Identifier identifier = 1;
+
+  oneof Type {
+    ObjectType object_type = 2;
+    TupleType tuple_type = 3;
+    Type element_type = 4;
+  }
+}
+
+message ObjectType {
+    map<string, Type> attributes = 1;
+}
+
+message TupleType {
+    repeated Type elements = 1;
+}
+
+message Value {
+  Type type = 1; // only specified if required
+
+  bool sensitive = 2;
+  bool unknown = 3;
+
+  oneof Value {
+    string string_value = 4; // string and number
+    bool boolean_value = 5; // boolean
+    ListValue list_value = 6; // set, list, and tuple
+    MapValue map_value = 7; // map and object
+  }
+}
+
+message ListValue {
+  repeated Value values = 1;
+}
+
+message MapValue {
+  map<string, Value> values = 1;
+}

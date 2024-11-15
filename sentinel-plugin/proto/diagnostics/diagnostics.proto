@@ -1,0 +1,28 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: BUSL-1.1
+
+syntax = "proto3";
+
+package diagnostics;
+
+option go_package = "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto/diagnostics";
+
+import "types/types.proto";
+
+enum Severity {
+  INVALID = 0;
+  WARNING = 1;
+  ERROR = 2;
+}
+
+message Diagnostic {
+  Severity severity = 1;
+  string summary = 2;
+  string detail = 3;
+
+  // only result should be set, depending on the type of diagnostic
+  oneof result {
+    types.EvaluateResult evaluate_result = 4;
+    types.FetchResult fetch_result = 5;
+  }
+}

@@ -2,13 +2,12 @@ module github.com/hashicorp/go-s2-plugin
 
 go 1.23.3
 
-replace github.com/hashicorp/go-s2 => ../go-s2
-
 require (
 	github.com/google/go-cmp v0.6.0
 	github.com/hashicorp/copywrite v0.19.0
+	github.com/hashicorp/go-hclog v1.5.0
 	github.com/hashicorp/go-plugin v1.0.1
-	github.com/hashicorp/go-s2 v0.0.1
+	github.com/hashicorp/go-s2 v0.0.2
 	github.com/hashicorp/hcl/v2 v2.22.0
 	github.com/zclconf/go-cty v1.15.0
 	github.com/zclconf/go-cty-debug v0.0.0-20240509010212-0d6042c53940
@@ -37,7 +36,6 @@ require (
 	github.com/google/go-github/v45 v45.2.0 // indirect
 	github.com/google/go-github/v53 v53.0.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/hashicorp/go-hclog v1.5.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d // indirect
 	github.com/henvic/httpretty v0.0.6 // indirect

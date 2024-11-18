@@ -10,17 +10,27 @@ import (
 )
 
 func FromCtyValue(v cty.Value, t cty.Type) *Value {
+	if v == cty.NilVal {
+		return nil
+	}
+
 	var protoType *Type
 	if t == cty.DynamicPseudoType {
 		t = v.Type()
 		protoType = FromCtyType(t)
 	}
 	value := fromCtyValue(v, t)
-	value.Type = protoType
+	if value != nil {
+		value.Type = protoType
+	}
 	return value
 }
 
 func fromCtyValue(v cty.Value, t cty.Type) *Value {
+	if v == cty.NilVal {
+		return nil
+	}
+
 	v, sensitive := UnsensitiveValue(v)
 
 	value := &Value{
@@ -75,6 +85,9 @@ func fromCtyValue(v cty.Value, t cty.Type) *Value {
 }
 
 func (v *Value) ToCtyValue(t cty.Type) cty.Value {
+	if v == nil {
+		return cty.NilVal
+	}
 	if t == cty.DynamicPseudoType {
 		// Then the type should be encoded in the value.
 		return v.toCtyValue(v.Type.ToCtyType())
@@ -83,6 +96,10 @@ func (v *Value) ToCtyValue(t cty.Type) cty.Value {
 }
 
 func (v *Value) toCtyValue(t cty.Type) (value cty.Value) {
+	if v == nil {
+		return cty.NilVal
+	}
+
 	if v.Unknown {
 		value = cty.UnknownVal(t)
 	} else if v.Value == nil {

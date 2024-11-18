@@ -18,6 +18,10 @@ func TestValuesRoundtrip(t *testing.T) {
 		ctyValue   cty.Value
 		protoValue *Value
 	}{
+		"totally nil": {
+			ctyValue:   cty.NilVal,
+			protoValue: nil,
+		},
 		"totally unknown": {
 			ctyValue: cty.DynamicVal,
 			protoValue: &Value{
@@ -246,14 +250,18 @@ func TestValuesRoundtrip(t *testing.T) {
 			})
 			t.Run("FromCtyValue (dynamic)", func(t *testing.T) {
 				protoValue := proto.Clone(tc.protoValue).(*Value)
-				protoValue.Type = FromCtyType(tc.ctyValue.Type())
+				if protoValue != nil {
+					protoValue.Type = FromCtyType(tc.ctyValue.Type())
+				}
 				if diff := cmp.Diff(FromCtyValue(tc.ctyValue, cty.DynamicPseudoType), protoValue, protocmp.Transform()); len(diff) > 0 {
 					t.Error(diff)
 				}
 			})
 			t.Run("ToCtyValue (dynamic)", func(t *testing.T) {
 				protoValue := proto.Clone(tc.protoValue).(*Value)
-				protoValue.Type = FromCtyType(tc.ctyValue.Type())
+				if protoValue != nil {
+					protoValue.Type = FromCtyType(tc.ctyValue.Type())
+				}
 				if diff := cmp.Diff(protoValue.ToCtyValue(cty.DynamicPseudoType), tc.ctyValue, ctydebug.CmpOptions); len(diff) > 0 {
 					t.Error(diff)
 				}

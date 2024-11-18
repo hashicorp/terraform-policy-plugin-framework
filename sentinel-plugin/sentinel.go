@@ -24,9 +24,19 @@ var (
 	_ Sentinel = (*sentinelClient)(nil)
 )
 
+// Sentinel represents a plugin clients connection to the Sentinel server.
+//
+// It implements the same sentinel.Engine interface that users of the main
+// library use so users can use this as a drop-in replacement for the main
+// library.
+//
+// However, the Sentinel plugin must first be configured with the Setup function
+// and must be closed with the Close function when done.
 type Sentinel interface {
 	sentinel.Engine
 
+	// Setup configures the Sentinel plugin with the given setup request. This
+	// must be called before any policies are evaluated.
 	Setup(ctx context.Context, request *proto.SetupRequest) (*proto.ServerCapabilities, hcl.Diagnostics)
 
 	// Close closes the connection to the Sentinel plugin.
@@ -47,6 +57,7 @@ func Connect(ctx context.Context, pgm string, args ...string) (Sentinel, error) 
 		AllowedProtocols: []plugin.Protocol{
 			plugin.ProtocolGRPC,
 		},
+		Logger: NewLogger(),
 	})
 
 	rpc, err := client.Client()
@@ -90,8 +101,18 @@ func (s *sentinelClient) Setup(ctx context.Context, request *proto.SetupRequest)
 
 func (s *sentinelClient) EvaluatePoliciesFor(ctx context.Context, requestedType string, attrs, metadata cty.Value, opts *sentinel.EvaluateOpts) (types.EvaluateResult, hcl.Diagnostics) {
 	var fetch uint32
+
 	if opts != nil {
 		var server *grpc.Server
+		if opts.EvaluateUnknownFilters {
+			return types.EvaluateResultError, hcl.Diagnostics{
+				{
+					Severity: hcl.DiagError,
+					Summary:  "Evaluating unknown filters is not supported",
+					Detail:   "opts.EvaluateUnknownFilters is set to true, but this is not supported by the current plugin architecture.",
+				},
+			}
+		}
 
 		fetch = s.broker.NextId()
 		go s.broker.AcceptAndServe(fetch, func(grpcOpts []grpc.ServerOption) *grpc.Server {
@@ -101,11 +122,14 @@ func (s *sentinelClient) EvaluatePoliciesFor(ctx context.Context, requestedType 
 			})
 			return server
 		})
-		defer server.Stop() // stop the server when we're done
+
+		defer func() {
+			server.Stop()
+		}()
 	}
 
 	resp, err := s.client.Evaluate(ctx, &proto.EvaluateRequest{
-		FetchService: 0,
+		FetchService: fetch,
 		Resource:     requestedType,
 		Attrs:        values.FromCtyValue(attrs, cty.DynamicPseudoType),
 		Metadata:     values.FromCtyValue(metadata, cty.DynamicPseudoType),
@@ -119,7 +143,7 @@ func (s *sentinelClient) EvaluatePoliciesFor(ctx context.Context, requestedType 
 			},
 		}
 	}
-	return types.EvaluateResult(resp.Result), diagnostics.ToHclDiagnostics(resp.Diagnostics)
+	return resp.Result.ToSentinelEvaluateResult(), diagnostics.ToHclDiagnostics(resp.Diagnostics)
 }
 
 func (s *sentinelClient) Close() {

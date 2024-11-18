@@ -11,7 +11,7 @@ import (
 
 func TypeIdentifier(t cty.Type) Type_Identifier {
 	switch {
-	case t == cty.DynamicPseudoType:
+	case t == cty.DynamicPseudoType, t == cty.NilType:
 		return Type_UNKNOWN
 	case t.IsPrimitiveType():
 		switch t {
@@ -45,6 +45,10 @@ func TypeIdentifier(t cty.Type) Type_Identifier {
 }
 
 func FromCtyType(t cty.Type) *Type {
+	if t == cty.NilType {
+		return nil
+	}
+
 	identifier := TypeIdentifier(t)
 	switch identifier {
 	case Type_UNKNOWN, Type_BOOLEAN, Type_NUMBER, Type_STRING:
@@ -88,6 +92,10 @@ func FromCtyType(t cty.Type) *Type {
 }
 
 func (t *Type) ToCtyType() cty.Type {
+	if t == nil {
+		return cty.NilType
+	}
+
 	switch t.Identifier {
 	case Type_UNKNOWN_IDENTIFIER, Type_UNKNOWN:
 		return cty.DynamicPseudoType

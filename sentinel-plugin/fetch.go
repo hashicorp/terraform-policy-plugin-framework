@@ -25,7 +25,7 @@ type fetchServer struct {
 }
 
 func (s *fetchServer) Fetch(ctx context.Context, req *proto.FetchRequest) (*proto.FetchResponse, error) {
-	value, diags := s.impl(ctx, req.Type, req.Requests.ToCtyValue(cty.DynamicPseudoType))
+	value, diags := s.impl(ctx, req.Type, req.Name, req.Requests.ToCtyValue(cty.DynamicPseudoType))
 	return &proto.FetchResponse{
 		Value:       values.FromCtyValue(value, cty.DynamicPseudoType),
 		Diagnostics: diagnostics.FromHclDiagnostics(diags),

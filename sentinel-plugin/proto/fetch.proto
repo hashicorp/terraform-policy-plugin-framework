@@ -22,9 +22,12 @@ message FetchRequest {
   // type is the type of data being requested.
   string type = 1;
 
+  // name is the name of the block being requested.
+  string name = 2;
+
   // requests contains the data from the `requests` attribute of the external
   // block in the configuration.
-  values.Value requests = 2;
+  values.Value requests = 3;
 }
 
 // FetchResponse is the response body for the Fetch RPC.

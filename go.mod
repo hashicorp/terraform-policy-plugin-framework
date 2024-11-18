@@ -7,7 +7,7 @@ require (
 	github.com/hashicorp/copywrite v0.19.0
 	github.com/hashicorp/go-hclog v1.5.0
 	github.com/hashicorp/go-plugin v1.0.1
-	github.com/hashicorp/go-s2 v0.0.2
+	github.com/hashicorp/go-s2 v0.0.3
 	github.com/hashicorp/hcl/v2 v2.22.0
 	github.com/zclconf/go-cty v1.15.0
 	github.com/zclconf/go-cty-debug v0.0.0-20240509010212-0d6042c53940

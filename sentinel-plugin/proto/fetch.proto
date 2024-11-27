@@ -8,13 +8,16 @@ package protocol;
 option go_package = "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto";
 
 import "diagnostics/diagnostics.proto";
-import "values/values.proto";
+import "cty/cty.proto";
 
 // Fetch is the service that Sentinel can use to execute callbacks
 // within the callers (such as Terraform).
 service Fetch {
-  // Get is a request to retrieve external data.
+  // Fetch is a request to retrieve external data.
   rpc Fetch(FetchRequest) returns (FetchResponse);
+
+  // Function executes a function within the caller.
+  rpc Function(FunctionRequest) returns (FunctionResponse);
 }
 
 // FetchRequest is the message body for the Fetch RPC.
@@ -27,16 +30,30 @@ message FetchRequest {
 
   // requests contains the data from the `requests` attribute of the external
   // block in the configuration.
-  values.Value requests = 3;
+  cty.Value requests = 3;
 }
 
 // FetchResponse is the response body for the Fetch RPC.
 message FetchResponse {
   // value should contain the populated data available to this external data
   // block.
-  values.Value value = 1;
+  cty.Value value = 1;
 
   // diagnostics will contain additional information explaining the reason
   // behind the returned result.
   repeated diagnostics.Diagnostic diagnostics = 2;
+}
+
+// FunctionRequest is the message body for the Function RPC.
+message FunctionRequest {
+  // name identifies the function to call.
+  string name = 1;
+
+  // arguments contains the arguments to the function.
+  repeated cty.Value arguments = 2;
+}
+
+// FunctionResponse is the response body for the Function RPC.
+message FunctionResponse {
+  cty.Value result = 1;
 }

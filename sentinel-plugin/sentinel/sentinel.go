@@ -1,7 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: BUSL-1.1
 
-package sentinel_plugin
+package sentinel
 
 import (
 	"context"
@@ -16,8 +16,8 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto"
+	proto_cty "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto/cty"
 	"github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto/diagnostics"
-	"github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto/values"
 )
 
 var (
@@ -37,7 +37,7 @@ type Sentinel interface {
 
 	// Setup configures the Sentinel plugin with the given setup request. This
 	// must be called before any policies are evaluated.
-	Setup(ctx context.Context, request *proto.SetupRequest) (*proto.ServerCapabilities, hcl.Diagnostics)
+	Setup(ctx context.Context, request *proto.SentinelSetupRequest) (*proto.SentinelSetupResponse_ServerCapabilities, hcl.Diagnostics)
 
 	// Close closes the connection to the Sentinel plugin.
 	Close()
@@ -85,7 +85,7 @@ type sentinelClient struct {
 	client proto.SentinelClient
 }
 
-func (s *sentinelClient) Setup(ctx context.Context, request *proto.SetupRequest) (*proto.ServerCapabilities, hcl.Diagnostics) {
+func (s *sentinelClient) Setup(ctx context.Context, request *proto.SentinelSetupRequest) (*proto.SentinelSetupResponse_ServerCapabilities, hcl.Diagnostics) {
 	response, err := s.client.Setup(ctx, request)
 	if err != nil {
 		return nil, hcl.Diagnostics{
@@ -99,7 +99,7 @@ func (s *sentinelClient) Setup(ctx context.Context, request *proto.SetupRequest)
 	return response.ServerCapabilities, diagnostics.ToHclDiagnostics(response.Diagnostics)
 }
 
-func (s *sentinelClient) EvaluatePoliciesFor(ctx context.Context, requestedType string, attrs, metadata cty.Value, opts *sentinel.EvaluateOpts) (types.EvaluateResult, hcl.Diagnostics) {
+func (s *sentinelClient) EvaluatePoliciesFor(ctx context.Context, consumer string, requestedType string, attrs, metadata cty.Value, opts *sentinel.EvaluateOpts) (types.EvaluateResult, hcl.Diagnostics) {
 	var fetch uint32
 
 	if opts != nil {
@@ -118,7 +118,8 @@ func (s *sentinelClient) EvaluatePoliciesFor(ctx context.Context, requestedType 
 		go s.broker.AcceptAndServe(fetch, func(grpcOpts []grpc.ServerOption) *grpc.Server {
 			server = grpc.NewServer(grpcOpts...)
 			proto.RegisterFetchServer(server, &fetchServer{
-				impl: opts.Fetch,
+				impl:      opts.Fetch,
+				functions: opts.Functions,
 			})
 			return server
 		})
@@ -128,11 +129,21 @@ func (s *sentinelClient) EvaluatePoliciesFor(ctx context.Context, requestedType 
 		}()
 	}
 
-	resp, err := s.client.Evaluate(ctx, &proto.EvaluateRequest{
+	resp, err := s.client.Evaluate(ctx, &proto.SentinelEvaluateRequest{
 		FetchService: fetch,
+		Consumer:     consumer,
 		Resource:     requestedType,
-		Attrs:        values.FromCtyValue(attrs, cty.DynamicPseudoType),
-		Metadata:     values.FromCtyValue(metadata, cty.DynamicPseudoType),
+		Attrs:        proto_cty.FromCtyValue(attrs, cty.DynamicPseudoType),
+		Metadata:     proto_cty.FromCtyValue(metadata, cty.DynamicPseudoType),
+		Functions: func() []*proto_cty.Function {
+			var fns []*proto_cty.Function
+			if opts != nil {
+				for name, fn := range opts.Functions {
+					fns = append(fns, proto_cty.FromCtyFunction(name, fn))
+				}
+			}
+			return fns
+		}(),
 	})
 	if err != nil {
 		return types.EvaluateResultError, hcl.Diagnostics{

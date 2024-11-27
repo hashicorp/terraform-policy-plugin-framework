@@ -1,0 +1,70 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: BUSL-1.1
+
+syntax = "proto3";
+
+package protocol;
+
+option go_package = "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto";
+
+import "cty/cty.proto";
+import "diagnostics/diagnostics.proto";
+
+// Plugin is the main service published by a Sentinel plugin.
+service Plugin {
+  rpc Setup(PluginSetupRequest) returns (PluginSetupResponse) {}
+
+  // ListFunctions will list all the functions that are available in the plugin.
+  rpc ListFunctions(ListFunctionsRequest) returns (ListFunctionsResponse) {}
+
+  // ExecuteFunction will execute a function in the plugin.
+  rpc ExecuteFunction(ExecuteFunctionRequest) returns (ExecuteFunctionResponse) {}
+}
+
+message PluginSetupRequest {
+  // client_capabilities should be populated by the client to indicate which
+  // behaviours the client is aware of.
+  message ClientCapabilities {}
+
+  // client_capabilities should be populated by the client to indicate which
+  // behaviours the client is aware of.
+  ClientCapabilities client_capabilities = 1;
+}
+
+message PluginSetupResponse {
+  // server_capabilities will be populated by the server to indicate which
+  // behaviours the client should expect from the server.
+  message ServerCapabilities {}
+
+  // server_capabilities will be populated by the server to indicate which
+  // behaviours the client should expect from the server.
+  ServerCapabilities server_capabilities = 1;
+
+  // diagnostics is a list of diagnostics that the server has generated during
+  // the setup process.
+  repeated diagnostics.Diagnostic diagnostics = 2;
+}
+
+// ListFunctionsRequest is the message body for the ListFunctions RPC.
+message ListFunctionsRequest {}
+
+// ListFunctionsResponse is the response body for the ListFunctions RPC.
+message ListFunctionsResponse {
+  // functions is a list of functions that are available in the plugin.
+  repeated cty.Function functions = 1;
+}
+
+// ExecuteFunctionRequest is the message body for the ExecuteFunction RPC.
+message ExecuteFunctionRequest {
+  // name identifies the function to call.
+  string name = 1;
+
+  // arguments contains the arguments to the function.
+  repeated cty.Value arguments = 2;
+}
+
+// ExecuteFunctionResponse is the response body for the ExecuteFunction RPC.
+message ExecuteFunctionResponse {
+  // result is the result of the function call.
+  cty.Value result = 1;
+}

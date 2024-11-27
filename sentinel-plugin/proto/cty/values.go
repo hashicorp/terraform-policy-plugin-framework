@@ -1,7 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: BUSL-1.1
 
-package values
+package cty
 
 import (
 	"fmt"
@@ -31,10 +31,9 @@ func fromCtyValue(v cty.Value, t cty.Type) *Value {
 		return nil
 	}
 
-	v, sensitive := UnsensitiveValue(v)
-
+	v, marks := v.Unmark()
 	value := &Value{
-		Sensitive: sensitive,
+		Marks: FromMarks(marks),
 	}
 
 	if !v.IsKnown() {
@@ -161,9 +160,9 @@ func (v *Value) toCtyValue(t cty.Type) (value cty.Value) {
 		}
 	}
 
-	if v.Sensitive {
-		// Finally, if the value is sensitive, we'll mark it as such.
-		value = SensitiveValue(value)
+	marks := ToMarks(v.Marks)
+	if len(marks) > 0 {
+		value = value.WithMarks(marks)
 	}
 	return value
 }

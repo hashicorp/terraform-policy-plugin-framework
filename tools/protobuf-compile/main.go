@@ -54,9 +54,14 @@ var protocSteps = []protocStep{
 		[]string{"--go_out=paths=source_relative,plugins=grpc:.", "-I./", "./fetch.proto"},
 	},
 	{
-		"values",
+		"plugin",
 		"../sentinel-plugin/proto",
-		[]string{"--go_out=paths=source_relative,plugins=grpc:.", "-I./", "./values/values.proto"},
+		[]string{"--go_out=paths=source_relative,plugins=grpc:.", "-I./", "./plugin.proto"},
+	},
+	{
+		"cty",
+		"../sentinel-plugin/proto",
+		[]string{"--go_out=paths=source_relative,plugins=grpc:.", "-I./", "./cty/cty.proto"},
 	},
 	{
 		"diagnostics",

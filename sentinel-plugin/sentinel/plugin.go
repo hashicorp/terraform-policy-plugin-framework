@@ -1,7 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: BUSL-1.1
 
-package sentinel_plugin
+package sentinel
 
 import "github.com/hashicorp/go-plugin"
 

@@ -3,9 +3,9 @@
 
 syntax = "proto3";
 
-package values;
+package cty;
 
-option go_package = "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto/values";
+option go_package = "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto/cty";
 
 message Type {
 
@@ -43,7 +43,8 @@ message TupleType {
 message Value {
   Type type = 1; // only specified if required
 
-  bool sensitive = 2;
+  repeated bytes marks = 2; // we only serialize string marks for now
+
   bool unknown = 3;
 
   oneof Value {
@@ -60,4 +61,39 @@ message ListValue {
 
 message MapValue {
   map<string, Value> values = 1;
+}
+
+message Path {
+  repeated Step steps = 1;
+}
+
+message Step {
+  oneof step {
+    string attribute_step = 1;
+    Value index_step = 2;
+  }
+}
+
+message Function {
+  string name = 1;
+
+  repeated FunctionParameter parameters = 2;
+  FunctionParameter variadic_parameter = 3;
+
+  Type return_type = 4;
+
+  string description = 5;
+  string description_kind = 6;
+}
+
+message FunctionParameter {
+  string name = 1;
+  Type type = 2;
+
+  string description = 3;
+
+  bool allow_null = 4;
+  bool allow_unknown = 5;
+  bool allow_dynamic = 6;
+  bool allow_marked = 7;
 }

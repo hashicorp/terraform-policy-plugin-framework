@@ -1,7 +1,7 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: BUSL-1.1
 
-package values
+package cty
 
 import (
 	"testing"
@@ -42,25 +42,31 @@ func TestValuesRoundtrip(t *testing.T) {
 			protoValue: &Value{},
 		},
 		"sensitive": {
-			ctyValue: cty.StringVal("hello").Mark(Sensitive),
+			ctyValue: cty.StringVal("hello").Mark("sensitive"),
 			protoValue: &Value{
 				Value: &Value_StringValue{
 					StringValue: "hello",
 				},
-				Sensitive: true,
+				Marks: [][]byte{
+					[]byte("\"sensitive\""),
+				},
 			},
 		},
 		"sensitive null": {
-			ctyValue: cty.NullVal(cty.String).Mark(Sensitive),
+			ctyValue: cty.NullVal(cty.String).Mark("sensitive"),
 			protoValue: &Value{
-				Sensitive: true,
+				Marks: [][]byte{
+					[]byte("\"sensitive\""),
+				},
 			},
 		},
 		"sensitive unknown": {
-			ctyValue: cty.UnknownVal(cty.String).Mark(Sensitive),
+			ctyValue: cty.UnknownVal(cty.String).Mark("sensitive"),
 			protoValue: &Value{
-				Sensitive: true,
-				Unknown:   true,
+				Marks: [][]byte{
+					[]byte("\"sensitive\""),
+				},
+				Unknown: true,
 			},
 		},
 		"string": {
@@ -218,7 +224,7 @@ func TestValuesRoundtrip(t *testing.T) {
 		},
 		"nested sensitive": {
 			ctyValue: cty.ObjectVal(map[string]cty.Value{
-				"hello": cty.StringVal("world").Mark(Sensitive),
+				"hello": cty.StringVal("world").Mark("sensitive"),
 			}),
 			protoValue: &Value{
 				Value: &Value_MapValue{
@@ -228,7 +234,9 @@ func TestValuesRoundtrip(t *testing.T) {
 								Value: &Value_StringValue{
 									StringValue: "world",
 								},
-								Sensitive: true,
+								Marks: [][]byte{
+									[]byte("\"sensitive\""),
+								},
 							},
 						},
 					},

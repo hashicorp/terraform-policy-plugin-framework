@@ -27,7 +27,7 @@ type fetchServer struct {
 	functions map[string]function.Function
 }
 
-func (s *fetchServer) Function(ctx context.Context, request *proto.FunctionRequest) (*proto.FunctionResponse, error) {
+func (s *fetchServer) Function(_ context.Context, request *proto.FunctionRequest) (*proto.FunctionResponse, error) {
 	if fn, ok := s.functions[request.Name]; ok {
 		var args []cty.Value
 		for ix, argument := range request.Arguments {
@@ -40,12 +40,17 @@ func (s *fetchServer) Function(ctx context.Context, request *proto.FunctionReque
 			args = append(args, argument.ToCtyValue(argumentType))
 		}
 
+		rt, err := fn.ReturnTypeForValues(args)
+		if err != nil {
+			return nil, err
+		}
+
 		val, err := fn.Call(args)
 		if err != nil {
 			return nil, err
 		}
 		return &proto.FunctionResponse{
-			Result: proto_cty.FromCtyValue(val, val.Type()),
+			Result: proto_cty.FromCtyValue(val, rt),
 		}, nil
 	}
 	return nil, fmt.Errorf("function %q not found", request.Name)

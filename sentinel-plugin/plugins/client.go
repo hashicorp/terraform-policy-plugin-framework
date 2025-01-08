@@ -9,6 +9,7 @@ import (
 	"os/exec"
 
 	go_plugin "github.com/hashicorp/go-plugin"
+	"github.com/hashicorp/go-s2/sentinel/plugins"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
@@ -67,7 +68,7 @@ func (client *PluginClient) Setup(ctx context.Context) hcl.Diagnostics {
 	return diagnostics.ToHclDiagnostics(response.Diagnostics)
 }
 
-func (client *PluginClient) ListFunctions(ctx context.Context) (map[string]function.Function, hcl.Diagnostics) {
+func (client *PluginClient) ListFunctions(ctx context.Context) ([]plugins.Function, hcl.Diagnostics) {
 	response, err := client.client.ListFunctions(ctx, new(proto.ListFunctionsRequest))
 	if err != nil {
 		return nil, hcl.Diagnostics{
@@ -79,9 +80,10 @@ func (client *PluginClient) ListFunctions(ctx context.Context) (map[string]funct
 		}
 	}
 
-	fns := make(map[string]function.Function, len(response.Functions))
+	var fns []plugins.Function
 	for _, fn := range response.Functions {
-		fns[fn.Name] = function.New(&function.Spec{
+		fns = append(fns, plugins.Function{
+			Name:        fn.Name,
 			Description: fn.Description,
 			Params: func() []function.Parameter {
 				var params []function.Parameter
@@ -98,13 +100,6 @@ func (client *PluginClient) ListFunctions(ctx context.Context) (map[string]funct
 				return nil
 			}(),
 			Type: function.StaticReturnType(fn.ReturnType.ToCtyType()),
-			Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
-				value, err := client.ExecuteFunction(ctx, fn.Name, retType, args...)
-				if err != nil {
-					return cty.NullVal(retType), err
-				}
-				return value, nil
-			},
 		})
 	}
 	return fns, nil

@@ -39,11 +39,13 @@ func Connect(ctx context.Context, plugin string, path string) (*PluginClient, st
 
 	rpc, err := client.Client()
 	if err != nil {
+		client.Kill()
 		return nil, stderr.String(), fmt.Errorf("failed to create client: %w", err)
 	}
 
 	raw, err := rpc.Dispense("plugin")
 	if err != nil {
+		client.Kill()
 		return nil, stderr.String(), fmt.Errorf("failed to dispense plugin: %w", err)
 	}
 

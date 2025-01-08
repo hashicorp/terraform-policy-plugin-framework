@@ -4,6 +4,7 @@
 package plugins
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os/exec"
@@ -18,8 +19,10 @@ import (
 	"github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto/diagnostics"
 )
 
-func Connect(ctx context.Context, plugin string, path string) (*PluginClient, error) {
+func Connect(ctx context.Context, plugin string, path string) (*PluginClient, string, error) {
 	cmd := exec.CommandContext(ctx, path)
+
+	var stderr bytes.Buffer
 
 	client := go_plugin.NewClient(&go_plugin.ClientConfig{
 		HandshakeConfig: Handshake,
@@ -31,21 +34,24 @@ func Connect(ctx context.Context, plugin string, path string) (*PluginClient, er
 			go_plugin.ProtocolGRPC,
 		},
 		Logger: NewLogger(plugin),
+		Stderr: &stderr,
 	})
 
 	rpc, err := client.Client()
 	if err != nil {
-		return nil, fmt.Errorf("failed to create client: %w", err)
+		client.Kill()
+		return nil, stderr.String(), fmt.Errorf("failed to create client: %w", err)
 	}
 
 	raw, err := rpc.Dispense("plugin")
 	if err != nil {
-		return nil, fmt.Errorf("failed to dispense plugin: %w", err)
+		client.Kill()
+		return nil, stderr.String(), fmt.Errorf("failed to dispense plugin: %w", err)
 	}
 
 	gc := raw.(*PluginClient)
 	gc.plugin = client
-	return gc, nil
+	return gc, stderr.String(), nil
 }
 
 type PluginClient struct {

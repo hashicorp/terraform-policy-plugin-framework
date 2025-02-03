@@ -5,6 +5,7 @@ package plugins
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/hashicorp/go-plugin"
@@ -51,6 +52,9 @@ func (g *GrpcServer) ExecuteFunction(_ context.Context, request *proto.ExecuteFu
 	for i, arg := range request.Arguments {
 		parameters := fn.Params()
 		if i >= len(parameters) {
+			if fn.VarParam() == nil {
+				return nil, errors.New("too many arguments")
+			}
 			args[i] = arg.ToCtyValue(fn.VarParam().Type)
 			continue
 		}
@@ -63,7 +67,12 @@ func (g *GrpcServer) ExecuteFunction(_ context.Context, request *proto.ExecuteFu
 		return nil, err
 	}
 
+	returnType, err := fn.ReturnTypeForValues(args)
+	if err != nil {
+		return nil, err
+	}
+
 	return &proto.ExecuteFunctionResponse{
-		Result: proto_cty.FromCtyValue(ret, ret.Type()),
+		Result: proto_cty.FromCtyValue(ret, returnType),
 	}, nil
 }

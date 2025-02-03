@@ -6,6 +6,7 @@ package plugins
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"os/exec"
 
@@ -111,16 +112,23 @@ func (client *PluginClient) ListFunctions(ctx context.Context) ([]plugins.Functi
 	return fns, nil
 }
 
-func (client *PluginClient) ExecuteFunction(ctx context.Context, name string, ret cty.Type, args ...cty.Value) (cty.Value, error) {
-	response, err := client.client.ExecuteFunction(ctx, &proto.ExecuteFunctionRequest{
-		Name: name,
-		Arguments: func() []*proto_cty.Value {
-			var arguments []*proto_cty.Value
-			for _, arg := range args {
-				arguments = append(arguments, proto_cty.FromCtyValue(arg, arg.Type()))
+func (client *PluginClient) ExecuteFunction(ctx context.Context, name string, ret cty.Type, types []cty.Type, variadicType *cty.Type, args ...cty.Value) (cty.Value, error) {
+	var arguments []*proto_cty.Value
+	for ix, arg := range args {
+		if ix >= len(types) {
+			if variadicType == nil {
+				return cty.NilVal, errors.New("too many arguments")
 			}
-			return arguments
-		}(),
+			arguments = append(arguments, proto_cty.FromCtyValue(arg, *variadicType))
+			continue
+		}
+
+		arguments = append(arguments, proto_cty.FromCtyValue(arg, types[ix]))
+	}
+
+	response, err := client.client.ExecuteFunction(ctx, &proto.ExecuteFunctionRequest{
+		Name:      name,
+		Arguments: arguments,
 	})
 	if err != nil {
 		return cty.NullVal(ret), err

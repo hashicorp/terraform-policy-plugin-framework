@@ -15,11 +15,11 @@ func ToCtyValue(val reflect.Value, want cty.Type) (cty.Value, error) {
 }
 
 func toCtyValue(in reflect.Value, want cty.Type, path Path) (cty.Value, error) {
-	if in.IsZero() {
-		return cty.NullVal(want), nil
-	}
-
 	if in.Type().Kind() == reflect.Pointer {
+		if in.IsNil() || in.IsZero() {
+			return cty.NullVal(want), nil
+		}
+
 		// unpack pointers
 		in = in.Elem()
 	}
@@ -62,6 +62,10 @@ func toCtyValue(in reflect.Value, want cty.Type, path Path) (cty.Value, error) {
 	case want.IsCollectionType():
 		switch {
 		case want.IsListType():
+			if in.IsNil() || in.IsZero() {
+				return cty.NullVal(cty.List(want.ElementType())), nil
+			}
+
 			out := make([]cty.Value, in.Len())
 			for i := 0; i < in.Len(); i++ {
 				value, err := toCtyValue(in.Index(i), want.ElementType(), path.WithIndex(fmt.Sprintf("%d", i)))
@@ -75,6 +79,10 @@ func toCtyValue(in reflect.Value, want cty.Type, path Path) (cty.Value, error) {
 			}
 			return cty.ListVal(out), nil
 		case want.IsMapType():
+			if in.IsNil() || in.IsZero() {
+				return cty.NullVal(cty.Map(want.ElementType())), nil
+			}
+
 			out := make(map[string]cty.Value)
 			for _, key := range in.MapKeys() {
 				value, err := toCtyValue(in.MapIndex(key), want.ElementType(), path.WithIndex(fmt.Sprintf("%q", key)))

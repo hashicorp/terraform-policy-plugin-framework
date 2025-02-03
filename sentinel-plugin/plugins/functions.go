@@ -29,6 +29,16 @@ func RegisterFunctionDirect(name string, fn function.Function) {
 	functions[name] = fn
 }
 
+// CallFunction calls the function with the given name and arguments. This is
+// mainly used for testing.
+func CallFunction(name string, args ...cty.Value) (cty.Value, error) {
+	fn, ok := functions[name]
+	if !ok {
+		return cty.NilVal, fmt.Errorf("function %s not found", name)
+	}
+	return fn.Call(args)
+}
+
 // RegisterFunction registers a Go function with the given name.
 func RegisterFunction(name string, fn interface{}) {
 	value := reflect.ValueOf(fn)

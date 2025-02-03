@@ -204,12 +204,28 @@ func TestRegisterFunction(t *testing.T) {
 			expected: cty.StringVal("hello"),
 		},
 		{
+			name: "empty string",
+			fn: func(s string) (string, error) {
+				return s, nil
+			},
+			args:     []cty.Value{cty.StringVal("")},
+			expected: cty.StringVal(""),
+		},
+		{
 			name: "bool",
 			fn: func(b bool) (bool, error) {
 				return b, nil
 			},
 			args:     []cty.Value{cty.BoolVal(true)},
 			expected: cty.BoolVal(true),
+		},
+		{
+			name: "bool - false",
+			fn: func(b bool) (bool, error) {
+				return b, nil
+			},
+			args:     []cty.Value{cty.BoolVal(false)},
+			expected: cty.BoolVal(false),
 		},
 		{
 			name: "slice",
@@ -228,6 +244,14 @@ func TestRegisterFunction(t *testing.T) {
 			expected: cty.NullVal(cty.List(cty.String)),
 		},
 		{
+			name: "emptySlice",
+			fn: func(s []string) ([]string, error) {
+				return s, nil
+			},
+			args:     []cty.Value{cty.ListValEmpty(cty.String)},
+			expected: cty.ListValEmpty(cty.String),
+		},
+		{
 			name: "map",
 			fn: func(m map[string]string) (map[string]string, error) {
 				return m, nil
@@ -242,6 +266,14 @@ func TestRegisterFunction(t *testing.T) {
 			},
 			args:     []cty.Value{cty.NullVal(cty.Map(cty.String))},
 			expected: cty.NullVal(cty.Map(cty.String)),
+		},
+		{
+			name: "emptyMap",
+			fn: func(m map[string]string) (map[string]string, error) {
+				return m, nil
+			},
+			args:     []cty.Value{cty.MapValEmpty(cty.String)},
+			expected: cty.MapValEmpty(cty.String),
 		},
 		{
 			name: "null",

@@ -3,9 +3,9 @@
 
 package types
 
-import "github.com/hashicorp/go-s2/sentinel/types"
+import "github.com/hashicorp/terraform-policy-core/policy/types"
 
-func FromSentinelEvaluateResult(result types.EvaluateResult) EvaluateResult {
+func FromPolicyEvaluateResult(result types.EvaluateResult) EvaluateResult {
 	switch result {
 	case types.EvaluateResultUnknown:
 		return EvaluateResult_UNKNOWN_EVALUATE_RESULT
@@ -22,7 +22,7 @@ func FromSentinelEvaluateResult(result types.EvaluateResult) EvaluateResult {
 	}
 }
 
-func (result EvaluateResult) ToSentinelEvaluateResult() types.EvaluateResult {
+func (result EvaluateResult) ToPolicyEvaluateResult() types.EvaluateResult {
 	switch result {
 	case EvaluateResult_UNKNOWN_EVALUATE_RESULT:
 		return types.EvaluateResultUnknown
@@ -39,7 +39,7 @@ func (result EvaluateResult) ToSentinelEvaluateResult() types.EvaluateResult {
 	}
 }
 
-func FromSentinelFetchResult(result types.FetchResult) FetchResult {
+func FromPolicyFetchResult(result types.FetchResult) FetchResult {
 	switch result {
 	case types.FetchResultInvalid:
 		return FetchResult_ERROR_FETCH_RESULT
@@ -52,7 +52,7 @@ func FromSentinelFetchResult(result types.FetchResult) FetchResult {
 	}
 }
 
-func (result FetchResult) ToSentinelFetchResult() types.FetchResult {
+func (result FetchResult) ToPolicyFetchResult() types.FetchResult {
 	switch result {
 	case FetchResult_ERROR_FETCH_RESULT:
 		return types.FetchResultInvalid

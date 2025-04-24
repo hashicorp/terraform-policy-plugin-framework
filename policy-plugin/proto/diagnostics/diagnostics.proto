@@ -5,7 +5,7 @@ syntax = "proto3";
 
 package diagnostics;
 
-option go_package = "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto/diagnostics";
+option go_package = "github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto/diagnostics";
 
 import "types/types.proto";
 import "cty/cty.proto";
@@ -17,7 +17,7 @@ enum Severity {
 }
 
 // Diagnostic is a message that represents a diagnostic message that can be
-// returned by the Sentinel server.
+// returned by the Terraform Policy server.
 message Diagnostic {
   Severity severity = 1;
   string summary = 2;

@@ -11,14 +11,14 @@ import (
 	"os/exec"
 
 	go_plugin "github.com/hashicorp/go-plugin"
-	"github.com/hashicorp/go-s2/sentinel/plugins"
 	"github.com/hashicorp/hcl/v2"
+	"github.com/hashicorp/terraform-policy-core/policy/plugins"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
 
-	"github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto"
-	proto_cty "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto/cty"
-	"github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto/diagnostics"
+	"github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto"
+	proto_cty "github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto/cty"
+	"github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto/diagnostics"
 )
 
 func Connect(ctx context.Context, plugin string, path string) (*PluginClient, string, error) {

@@ -5,12 +5,12 @@ syntax = "proto3";
 
 package protocol;
 
-option go_package = "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto";
+option go_package = "github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto";
 
 import "cty/cty.proto";
 import "diagnostics/diagnostics.proto";
 
-// Plugin is the main service published by a Sentinel plugin.
+// Plugin is the main service published by a Terraform Policy plugin.
 service Plugin {
   rpc Setup(PluginSetupRequest) returns (PluginSetupResponse) {}
 

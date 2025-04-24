@@ -5,7 +5,7 @@ syntax = "proto3";
 
 package cty;
 
-option go_package = "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto/cty";
+option go_package = "github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto/cty";
 
 message Type {
 

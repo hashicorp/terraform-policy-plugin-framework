@@ -5,27 +5,27 @@ syntax = "proto3";
 
 package protocol;
 
-option go_package = "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto";
+option go_package = "github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto";
 
 import "diagnostics/diagnostics.proto";
 import "cty/cty.proto";
 import "types/types.proto";
 
-// Sentinel is the main service published by the plugin.
-service Sentinel {
+// Policy is the main service published by the plugin.
+service Policy {
   // Setup allows the client and server to exchange known capabilities so they
   // trigger alternate behaviour to maintain forwards and backwards
   // compatibility. In addition, this call tells the plugin where to load the
-  // sentinel policies from.
-  rpc Setup(SentinelSetupRequest) returns (SentinelSetupResponse) {}
+  // Terraform Policy files from.
+  rpc Setup(PolicySetupRequest) returns (PolicySetupResponse) {}
   // Evaluate evaluates a resource against the store policies. Essentially,
   // this function simply calls the equivalent Evaluate function on the
-  // internal Sentinel go-library.
-  rpc Evaluate(SentinelEvaluateRequest) returns (SentinelEvaluateResponse) {}
+  // internal Policy go-library.
+  rpc Evaluate(PolicyEvaluateRequest) returns (PolicyEvaluateResponse) {}
 }
 
 // SetupRequest is the message body for the Setup RPC.
-message SentinelSetupRequest {
+message PolicySetupRequest {
 
   // ClientCapabilities are the set of capabilities the client supports.
   // At launch, this is empty as we don't have any backwards or forwards
@@ -36,14 +36,14 @@ message SentinelSetupRequest {
   // behaviours the client is aware of.
   ClientCapabilities client_capabilities = 1;
 
-  // source_locations is the list of locations that Sentinel should use to
+  // source_locations is the list of locations that Policy should use to
   // source policies. At launch, this will just be local directories but could
   // in future be extended to include remote sources.
   repeated string source_locations = 2;
 }
 
 // SetupResponse is the message response for the Setup RPC.
-message SentinelSetupResponse {
+message PolicySetupResponse {
 
   // The consumer configurations are a map of filenames to consumer
   // configurations for that file.
@@ -61,13 +61,13 @@ message SentinelSetupResponse {
   ServerCapabilities server_capabilities = 1;
 
   // The diagnostics will contain any errors or warnings as a result of loading
-  // the sentinel policies.
+  // the Terraform Policy files.
   repeated diagnostics.Diagnostic diagnostics = 2;
 }
 
 
 // EvaluateRequest is the message body the Evaluate RPC.
-message SentinelEvaluateRequest {
+message PolicyEvaluateRequest {
   // external_data_service is discussed in detail in the Callback API section
   // below.
   uint32 fetch_service = 1;
@@ -79,11 +79,11 @@ message SentinelEvaluateRequest {
   string resource = 2;
 
   // attrs contains the data that will eventually be made available within the
-  // resource_value data referenced within Sentinel policy files.
+  // resource_value data referenced within Terraform Policy files.
   cty.Value attrs = 3;
 
   // metadata contains the data that will eventually be made available within
-  // the resource_metadata data referenced within Sentinel policy files.
+  // the resource_metadata data referenced within Terraform Policy files.
   cty.Value metadata = 4;
 
   // functions contains the functions that are available to this resource type.
@@ -91,7 +91,7 @@ message SentinelEvaluateRequest {
 }
 
 // EvaluateResponse is the message response for the Evaluate RPC.
-message SentinelEvaluateResponse {
+message PolicyEvaluateResponse {
   // Result contains a single value for the overall result of the evaluate RPC.
   // This allows users to differentiate between different types of diagnostics.
   types.EvaluateResult result = 1;

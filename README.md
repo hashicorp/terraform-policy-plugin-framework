@@ -1,2 +1,2 @@
-# go-s2-plugin
+# terraform-policy-plugin-framework
 

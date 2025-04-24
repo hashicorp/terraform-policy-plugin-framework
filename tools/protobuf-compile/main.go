@@ -44,40 +44,40 @@ type protocStep struct {
 
 var protocSteps = []protocStep{
 	{
-		"sentinel",
-		"../sentinel-plugin/proto",
-		[]string{"--go_out=paths=source_relative,plugins=grpc:.", "-I./", "./sentinel.proto"},
+		"policy",
+		"../policy-plugin/proto",
+		[]string{"--go_out=paths=source_relative,plugins=grpc:.", "-I./", "./policy.proto"},
 	},
 	{
 		"fetch",
-		"../sentinel-plugin/proto",
+		"../policy-plugin/proto",
 		[]string{"--go_out=paths=source_relative,plugins=grpc:.", "-I./", "./fetch.proto"},
 	},
 	{
 		"plugin",
-		"../sentinel-plugin/proto",
+		"../policy-plugin/proto",
 		[]string{"--go_out=paths=source_relative,plugins=grpc:.", "-I./", "./plugin.proto"},
 	},
 	{
 		"cty",
-		"../sentinel-plugin/proto",
+		"../policy-plugin/proto",
 		[]string{"--go_out=paths=source_relative,plugins=grpc:.", "-I./", "./cty/cty.proto"},
 	},
 	{
 		"diagnostics",
-		"../sentinel-plugin/proto",
+		"../policy-plugin/proto",
 		[]string{"--go_out=paths=source_relative,plugins=grpc:.", "-I./", "./diagnostics/diagnostics.proto"},
 	},
 	{
 		"types",
-		"../sentinel-plugin/proto",
+		"../policy-plugin/proto",
 		[]string{"--go_out=paths=source_relative,plugins=grpc:.", "-I./", "./types/types.proto"},
 	},
 }
 
 func main() {
 	if len(os.Args) != 2 {
-		log.Fatal("Usage: go run github.com/go-s2-plugin/tools/protobuf-compile <basedir>")
+		log.Fatal("Usage: go run github.com/terraform-policy-plugin-framework/tools/protobuf-compile <basedir>")
 	}
 	baseDir := os.Args[1]
 	workDir := filepath.Join(baseDir, "protobuf-compile/.workdir")

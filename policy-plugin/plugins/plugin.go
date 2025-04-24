@@ -9,13 +9,13 @@ import (
 	"github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc"
 
-	"github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto"
+	"github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto"
 )
 
 var (
 	Handshake = plugin.HandshakeConfig{
 		ProtocolVersion:  1,
-		MagicCookieKey:   "SENTINEL_PLUGIN",
+		MagicCookieKey:   "TF_POLICY_PLUGIN",
 		MagicCookieValue: "95ADAEF3D8C4",
 	}
 

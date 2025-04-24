@@ -1,19 +1,19 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: BUSL-1.1
 
-package sentinel
+package policy
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/go-s2/sentinel/evaluate"
+	"github.com/hashicorp/terraform-policy-core/policy/evaluate"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
 
-	"github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto"
-	proto_cty "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto/cty"
-	"github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto/diagnostics"
+	"github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto"
+	proto_cty "github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto/cty"
+	"github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto/diagnostics"
 )
 
 var _ proto.FetchServer = (*fetchServer)(nil)

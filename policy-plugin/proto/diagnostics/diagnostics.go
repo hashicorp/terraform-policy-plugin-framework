@@ -6,14 +6,14 @@ package diagnostics
 import (
 	"strings"
 
-	"github.com/hashicorp/go-s2/sentinel/diagnostics"
-	"github.com/hashicorp/go-s2/sentinel/diagnostics/snippet"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
+	"github.com/hashicorp/terraform-policy-core/policy/diagnostics"
+	"github.com/hashicorp/terraform-policy-core/policy/diagnostics/snippet"
 	"github.com/zclconf/go-cty/cty"
 
-	proto_cty "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto/cty"
-	proto_types "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto/types"
+	proto_cty "github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto/cty"
+	proto_types "github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto/types"
 )
 
 func FromHclDiagnostics(diagnostics hcl.Diagnostics, sources map[string]*hcl.File) []*Diagnostic {
@@ -51,11 +51,11 @@ func FromHclDiagnostic(diagnostic *hcl.Diagnostic, sources map[string]*hcl.File)
 		switch {
 		case result.EvaluateResult != nil:
 			diag.Result = &Diagnostic_EvaluateResult{
-				EvaluateResult: proto_types.FromSentinelEvaluateResult(*result.EvaluateResult),
+				EvaluateResult: proto_types.FromPolicyEvaluateResult(*result.EvaluateResult),
 			}
 		case result.FetchResult != nil:
 			diag.Result = &Diagnostic_FetchResult{
-				FetchResult: proto_types.FromSentinelFetchResult(*result.FetchResult),
+				FetchResult: proto_types.FromPolicyFetchResult(*result.FetchResult),
 			}
 		}
 	}
@@ -68,13 +68,13 @@ func FromHclDiagnostic(diagnostic *hcl.Diagnostic, sources map[string]*hcl.File)
 	if extra, ok := hcl.DiagnosticExtra[*SnippetExtra](diagnostic); ok {
 		diag.Snippet = extra.Snippet
 	} else {
-		diag.Snippet = FromSentinelSnippet(snippet.Snippet(diagnostic, sources))
+		diag.Snippet = FromPolicySnippet(snippet.Snippet(diagnostic, sources))
 	}
 
 	if extra, ok := hcl.DiagnosticExtra[*ExpressionValuesExtra](diagnostic); ok {
 		diag.ExpressionValues = extra.ExpressionValues
 	} else {
-		diag.ExpressionValues = FromSentinelValues(snippet.BuildExpressionValues(diagnostic))
+		diag.ExpressionValues = FromPolicyValues(snippet.BuildExpressionValues(diagnostic))
 	}
 
 	if extra, ok := hcl.DiagnosticExtra[*FunctionCallExtra](diagnostic); ok {
@@ -115,9 +115,9 @@ func (diagnostic *Diagnostic) ToHclDiagnostic() *hcl.Diagnostic {
 	if diagnostic.Result != nil {
 		switch result := diagnostic.Result.(type) {
 		case *Diagnostic_EvaluateResult:
-			builder = builder.WithEvaluateResult(result.EvaluateResult.ToSentinelEvaluateResult())
+			builder = builder.WithEvaluateResult(result.EvaluateResult.ToPolicyEvaluateResult())
 		case *Diagnostic_FetchResult:
-			builder = builder.WithFetchResult(result.FetchResult.ToSentinelFetchResult())
+			builder = builder.WithFetchResult(result.FetchResult.ToPolicyFetchResult())
 		}
 	}
 
@@ -202,7 +202,7 @@ func FromHclPos(pos hcl.Pos) *Position {
 	}
 }
 
-func (s *Snippet) ToSentinelSnippet() *snippet.DiagnosticSnippet {
+func (s *Snippet) ToPolicySnippet() *snippet.DiagnosticSnippet {
 	if s == nil {
 		return nil
 	}
@@ -219,7 +219,7 @@ func (s *Snippet) ToSentinelSnippet() *snippet.DiagnosticSnippet {
 	return snippet
 }
 
-func FromSentinelSnippet(s *snippet.DiagnosticSnippet) *Snippet {
+func FromPolicySnippet(s *snippet.DiagnosticSnippet) *Snippet {
 	if s == nil {
 		return nil
 	}
@@ -236,15 +236,15 @@ func FromSentinelSnippet(s *snippet.DiagnosticSnippet) *Snippet {
 	return snippet
 }
 
-func FromSentinelValues(evs []snippet.ExpressionValue) []*ExpressionValue {
+func FromPolicyValues(evs []snippet.ExpressionValue) []*ExpressionValue {
 	var values []*ExpressionValue
 	for _, ev := range evs {
-		values = append(values, FromSentinelValue(ev))
+		values = append(values, FromPolicyValue(ev))
 	}
 	return values
 }
 
-func FromSentinelValue(ev snippet.ExpressionValue) *ExpressionValue {
+func FromPolicyValue(ev snippet.ExpressionValue) *ExpressionValue {
 	return &ExpressionValue{
 		Path:  proto_cty.FromCtyPath(ev.Path),
 		Value: proto_cty.FromCtyValue(ev.Value, cty.DynamicPseudoType),

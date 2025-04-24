@@ -23,15 +23,16 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// EvaluateResult contains a single value for the overall result of the evaluate RPC.
-// This allows users to differentiate between different types of diagnostics.
+// EvaluateResult contains a single value for the overall result of the evaluate
+// RPC. This allows users to differentiate between different types of
+// diagnostics.
 type EvaluateResult int32
 
 const (
 	// INVALID means the result that was set by the server wasn't recognized by
-	// the client. This means a future version of Sentinel has introduced a new
-	// result type, and the client isn't aware of this. Clients should handle
-	// this gracefully.
+	// the client. This means a future version of Terraform Policy has introduced
+	// a new result type, and the client isn't aware of this. Clients should
+	// handle this gracefully.
 	EvaluateResult_INVALID_EVALUATE_RESULT EvaluateResult = 0
 	// UNKNOWN means the result could not be verified at this time. This means
 	// the client sent unknown values to the server as part of the request, and
@@ -102,21 +103,21 @@ type FetchResult int32
 
 const (
 	// INVALID means the result that was set by caller was not recognized by
-	// Sentinel. The caller is using a future version of the protocol and
-	// used a result type not known to sentinel at this time. Callers should
-	// never set this directly. Sentinel will treat this result as ERROR and
-	// add a version mismatch warning to the output.
+	// Terraform Policy. The caller is using a future version of the protocol and
+	// used a result type not known to Terraform Policy at this time. Callers
+	// should never set this directly. Terraform Policy will treat this result as
+	// ERROR and add a version mismatch warning to the output.
 	FetchResult_INVALID_FETCH_RESULT FetchResult = 0
-	// ERROR means there was a problem with the data provided by Sentinel.
-	// Sentinel will map this result type back to ERROR in main response,
+	// ERROR means there was a problem with the data provided by Terraform Policy.
+	// Terraform Policy will map this result type back to ERROR in main response,
 	// indicating a problem with the policy itself rather than the data.
 	FetchResult_ERROR_FETCH_RESULT FetchResult = 1
 	// VALID means the request was valid, but doesn't mean there are no
 	// errors in the returned diagnostics. If there are errors in the
-	// diagnostics, then Sentinel will map this result to DENY indicating
+	// diagnostics, then Terraform Policy will map this result to DENY indicating
 	// the policy itself is okay but the provided data meant the resource did
-	// not pass evaluation. If there are no errors then Sentinel will use the
-	// returned value as reference data.
+	// not pass evaluation. If there are no errors then Terraform Policy will use
+	// the returned value as reference data.
 	FetchResult_VALID_FETCH_RESULT FetchResult = 2
 )
 
@@ -181,11 +182,12 @@ var file_types_types_proto_rawDesc = []byte{
 	0x12, 0x16, 0x0a, 0x12, 0x45, 0x52, 0x52, 0x4f, 0x52, 0x5f, 0x46, 0x45, 0x54, 0x43, 0x48, 0x5f,
 	0x52, 0x45, 0x53, 0x55, 0x4c, 0x54, 0x10, 0x01, 0x12, 0x16, 0x0a, 0x12, 0x56, 0x41, 0x4c, 0x49,
 	0x44, 0x5f, 0x46, 0x45, 0x54, 0x43, 0x48, 0x5f, 0x52, 0x45, 0x53, 0x55, 0x4c, 0x54, 0x10, 0x02,
-	0x42, 0x3f, 0x5a, 0x3d, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x68,
-	0x61, 0x73, 0x68, 0x69, 0x63, 0x6f, 0x72, 0x70, 0x2f, 0x67, 0x6f, 0x2d, 0x73, 0x32, 0x2d, 0x70,
-	0x6c, 0x75, 0x67, 0x69, 0x6e, 0x2f, 0x73, 0x65, 0x6e, 0x74, 0x69, 0x6e, 0x65, 0x6c, 0x2d, 0x70,
-	0x6c, 0x75, 0x67, 0x69, 0x6e, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x74, 0x79, 0x70, 0x65,
-	0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x42, 0x52, 0x5a, 0x50, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x68,
+	0x61, 0x73, 0x68, 0x69, 0x63, 0x6f, 0x72, 0x70, 0x2f, 0x74, 0x65, 0x72, 0x72, 0x61, 0x66, 0x6f,
+	0x72, 0x6d, 0x2d, 0x70, 0x6f, 0x6c, 0x69, 0x63, 0x79, 0x2d, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e,
+	0x2d, 0x66, 0x72, 0x61, 0x6d, 0x65, 0x77, 0x6f, 0x72, 0x6b, 0x2f, 0x70, 0x6f, 0x6c, 0x69, 0x63,
+	0x79, 0x2d, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x74,
+	0x79, 0x70, 0x65, 0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (

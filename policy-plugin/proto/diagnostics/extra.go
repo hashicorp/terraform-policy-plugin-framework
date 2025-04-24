@@ -3,7 +3,7 @@
 
 package diagnostics
 
-import "github.com/hashicorp/go-s2/sentinel/diagnostics"
+import "github.com/hashicorp/terraform-policy-core/policy/diagnostics"
 
 // SnippetExtra is an extra containing a code snippet. As source information
 // is lost when the diagnostic is translated to a protocol buffer, this extra

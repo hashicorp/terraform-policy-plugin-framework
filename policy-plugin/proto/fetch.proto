@@ -5,12 +5,12 @@ syntax = "proto3";
 
 package protocol;
 
-option go_package = "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto";
+option go_package = "github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto";
 
 import "diagnostics/diagnostics.proto";
 import "cty/cty.proto";
 
-// Fetch is the service that Sentinel can use to execute callbacks
+// Fetch is the service that Terraform Policy can use to execute callbacks
 // within the callers (such as Terraform).
 service Fetch {
   // Fetch is a request to retrieve external data.

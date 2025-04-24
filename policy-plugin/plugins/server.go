@@ -11,8 +11,8 @@ import (
 	"github.com/hashicorp/go-plugin"
 	"github.com/zclconf/go-cty/cty"
 
-	"github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto"
-	proto_cty "github.com/hashicorp/go-s2-plugin/sentinel-plugin/proto/cty"
+	"github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto"
+	proto_cty "github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto/cty"
 )
 
 func Serve() {

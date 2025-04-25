@@ -10,9 +10,9 @@ import (
 
 	"github.com/hashicorp/go-plugin"
 	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/msgpack"
 
 	"github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto"
-	proto_cty "github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto/cty"
 )
 
 func Serve() {
@@ -33,9 +33,14 @@ func (g *GrpcServer) Setup(context.Context, *proto.PluginSetupRequest) (*proto.P
 }
 
 func (g *GrpcServer) ListFunctions(context.Context, *proto.ListFunctionsRequest) (*proto.ListFunctionsResponse, error) {
-	var fns []*proto_cty.Function
-	for name, fn := range functions {
-		fns = append(fns, proto_cty.FromCtyFunction(name, fn))
+	fns := make(map[string]*proto.Function, len(functions))
+	for name, function := range functions {
+		fn, err := proto.FromCtyFunction(function)
+		if err != nil {
+			return nil, err
+		}
+
+		fns[name] = fn
 	}
 	return &proto.ListFunctionsResponse{
 		Functions: fns,
@@ -43,36 +48,53 @@ func (g *GrpcServer) ListFunctions(context.Context, *proto.ListFunctionsRequest)
 }
 
 func (g *GrpcServer) ExecuteFunction(_ context.Context, request *proto.ExecuteFunctionRequest) (*proto.ExecuteFunctionResponse, error) {
-	fn, ok := functions[request.Name]
+	function, ok := functions[request.Name]
 	if !ok {
 		return nil, fmt.Errorf("function %q not found", request.Name)
 	}
 
+	parameters := function.Params()
+	variadicParameter := function.VarParam()
+
 	args := make([]cty.Value, len(request.Arguments))
-	for i, arg := range request.Arguments {
-		parameters := fn.Params()
+	for i, argument := range request.Arguments {
 		if i >= len(parameters) {
-			if fn.VarParam() == nil {
+			if variadicParameter == nil {
 				return nil, errors.New("too many arguments")
 			}
-			args[i] = arg.ToCtyValue(fn.VarParam().Type)
+
+			arg, err := msgpack.Unmarshal(argument, variadicParameter.Type)
+			if err != nil {
+				return nil, err
+			}
+
+			args[i] = arg
 			continue
 		}
 
-		args[i] = arg.ToCtyValue(parameters[i].Type)
+		arg, err := msgpack.Unmarshal(argument, parameters[i].Type)
+		if err != nil {
+			return nil, err
+		}
+		args[i] = arg
 	}
 
-	ret, err := fn.Call(args)
+	ret, err := function.Call(args)
 	if err != nil {
 		return nil, err
 	}
 
-	returnType, err := fn.ReturnTypeForValues(args)
+	returnType, err := function.ReturnTypeForValues(args)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := msgpack.Marshal(ret, returnType)
 	if err != nil {
 		return nil, err
 	}
 
 	return &proto.ExecuteFunctionResponse{
-		Result: proto_cty.FromCtyValue(ret, returnType),
+		Result: result,
 	}, nil
 }

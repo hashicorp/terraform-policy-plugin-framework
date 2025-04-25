@@ -1,62 +1,81 @@
 // Copyright (c) HashiCorp, Inc.
 // SPDX-License-Identifier: BUSL-1.1
 
-package cty
+package proto
 
 import (
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
+	ctyjson "github.com/zclconf/go-cty/cty/json"
 )
 
-func (parameter *FunctionParameter) ToCtyParameter() function.Parameter {
+func (parameter *FunctionParameter) ToCtyParameter() (function.Parameter, error) {
+	returnType, err := ctyjson.UnmarshalType(parameter.Type)
+	if err != nil {
+		return function.Parameter{}, err
+	}
+
 	return function.Parameter{
 		Name:             parameter.Name,
 		Description:      parameter.Description,
-		Type:             parameter.Type.ToCtyType(),
+		Type:             returnType,
 		AllowNull:        parameter.AllowNull,
 		AllowUnknown:     parameter.AllowUnknown,
 		AllowDynamicType: parameter.AllowDynamic,
 		AllowMarked:      parameter.AllowMarked,
-	}
+	}, nil
 }
 
-func FromCtyParameter(parameter function.Parameter) *FunctionParameter {
+func FromCtyParameter(parameter function.Parameter) (*FunctionParameter, error) {
+	returnType, err := ctyjson.MarshalType(parameter.Type)
+	if err != nil {
+		return nil, err
+	}
+
 	return &FunctionParameter{
 		Name:         parameter.Name,
 		Description:  parameter.Description,
-		Type:         FromCtyType(parameter.Type),
+		Type:         returnType,
 		AllowNull:    parameter.AllowNull,
 		AllowUnknown: parameter.AllowUnknown,
 		AllowDynamic: parameter.AllowDynamicType,
 		AllowMarked:  parameter.AllowMarked,
-	}
+	}, nil
 }
 
-func FromCtyFunction(name string, fn function.Function) *Function {
+func FromCtyFunction(fn function.Function) (*Function, error) {
 	var types []cty.Type
 
 	var parameters []*FunctionParameter
 	for _, param := range fn.Params() {
 		types = append(types, param.Type)
-		parameters = append(parameters, FromCtyParameter(param))
+		parameterType, err := FromCtyParameter(param)
+		if err != nil {
+			return nil, err
+		}
+		parameters = append(parameters, parameterType)
 	}
 
 	var variadic *FunctionParameter
 	if v := fn.VarParam(); v != nil {
 		types = append(types, v.Type)
-		variadic = FromCtyParameter(*v)
+		variadic, _ = FromCtyParameter(*v)
 	}
 
 	returns, err := fn.ReturnType(types)
 	if err != nil {
-		return nil
+		return nil, err
+	}
+
+	returnType, err := ctyjson.MarshalType(returns)
+	if err != nil {
+		return nil, err
 	}
 
 	return &Function{
-		Name:              name,
 		Parameters:        parameters,
 		VariadicParameter: variadic,
-		ReturnType:        FromCtyType(returns),
+		ReturnType:        returnType,
 		Description:       fn.Description(),
-	}
+	}, nil
 }

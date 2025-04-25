@@ -44,34 +44,9 @@ type protocStep struct {
 
 var protocSteps = []protocStep{
 	{
-		"policy",
-		"../policy-plugin/proto",
-		[]string{"--go_out=paths=source_relative,plugins=grpc:.", "-I./", "./policy.proto"},
-	},
-	{
-		"fetch",
-		"../policy-plugin/proto",
-		[]string{"--go_out=paths=source_relative,plugins=grpc:.", "-I./", "./fetch.proto"},
-	},
-	{
 		"plugin",
 		"../policy-plugin/proto",
 		[]string{"--go_out=paths=source_relative,plugins=grpc:.", "-I./", "./plugin.proto"},
-	},
-	{
-		"cty",
-		"../policy-plugin/proto",
-		[]string{"--go_out=paths=source_relative,plugins=grpc:.", "-I./", "./cty/cty.proto"},
-	},
-	{
-		"diagnostics",
-		"../policy-plugin/proto",
-		[]string{"--go_out=paths=source_relative,plugins=grpc:.", "-I./", "./diagnostics/diagnostics.proto"},
-	},
-	{
-		"types",
-		"../policy-plugin/proto",
-		[]string{"--go_out=paths=source_relative,plugins=grpc:.", "-I./", "./types/types.proto"},
 	},
 }
 

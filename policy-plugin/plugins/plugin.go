@@ -5,6 +5,7 @@ package plugins
 
 import (
 	context "context"
+	"fmt"
 
 	"github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc"
@@ -33,8 +34,5 @@ func (p *PluginServer) GRPCServer(_ *plugin.GRPCBroker, server *grpc.Server) err
 }
 
 func (p *PluginServer) GRPCClient(_ context.Context, _ *plugin.GRPCBroker, conn *grpc.ClientConn) (interface{}, error) {
-	return &PluginClient{
-		plugin: nil, // this will be set by the Connect function
-		client: proto.NewPluginClient(conn),
-	}, nil
+	return nil, fmt.Errorf("not implemented")
 }

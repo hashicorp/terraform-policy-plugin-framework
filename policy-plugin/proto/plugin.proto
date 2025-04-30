@@ -43,7 +43,7 @@ message ListFunctionsRequest {}
 
 // ListFunctionsResponse is the response body for the ListFunctions RPC.
 message ListFunctionsResponse {
-  // functions is a list of functions that are available in the plugin.
+  // functions is a map of functions that are available in the plugin.
   map<string, Function> functions = 1;
 }
 

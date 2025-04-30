@@ -7,9 +7,6 @@ package protocol;
 
 option go_package = "github.com/hashicorp/terraform-policy-plugin-framework/policy-plugin/proto";
 
-import "cty/cty.proto";
-import "diagnostics/diagnostics.proto";
-
 // Plugin is the main service published by a Terraform Policy plugin.
 service Plugin {
   rpc Setup(PluginSetupRequest) returns (PluginSetupResponse) {}
@@ -39,10 +36,6 @@ message PluginSetupResponse {
   // server_capabilities will be populated by the server to indicate which
   // behaviours the client should expect from the server.
   ServerCapabilities server_capabilities = 1;
-
-  // diagnostics is a list of diagnostics that the server has generated during
-  // the setup process.
-  repeated diagnostics.Diagnostic diagnostics = 2;
 }
 
 // ListFunctionsRequest is the message body for the ListFunctions RPC.
@@ -50,8 +43,8 @@ message ListFunctionsRequest {}
 
 // ListFunctionsResponse is the response body for the ListFunctions RPC.
 message ListFunctionsResponse {
-  // functions is a list of functions that are available in the plugin.
-  repeated cty.Function functions = 1;
+  // functions is a map of functions that are available in the plugin.
+  map<string, Function> functions = 1;
 }
 
 // ExecuteFunctionRequest is the message body for the ExecuteFunction RPC.
@@ -59,12 +52,42 @@ message ExecuteFunctionRequest {
   // name identifies the function to call.
   string name = 1;
 
-  // arguments contains the arguments to the function.
-  repeated cty.Value arguments = 2;
+  // arguments contains the arguments to the function, msgpack encoded.
+  repeated bytes arguments = 2;
 }
 
 // ExecuteFunctionResponse is the response body for the ExecuteFunction RPC.
 message ExecuteFunctionResponse {
-  // result is the result of the function call.
-  cty.Value result = 1;
+  // result is the result of the function call, msgpack encoded.
+  bytes result = 1;
+}
+
+// Function provides the definition of a function as it transfers via RPC.
+message Function {
+
+  // The supported parameters of the function.
+  repeated FunctionParameter parameters = 1;
+  FunctionParameter variadic_parameter = 2;
+
+  // The return type of the function, json encoded.
+  bytes return_type = 3;
+
+  string description = 4;
+  string description_kind = 5;
+}
+
+// FunctionParameter provides the definition of a function parameter as it
+// transfers via rpc.
+message FunctionParameter {
+  string name = 1;
+
+  // The type of the parameter, json encoded.
+  bytes type = 2;
+
+  string description = 3;
+
+  bool allow_null = 4;
+  bool allow_unknown = 5;
+  bool allow_dynamic = 6;
+  bool allow_marked = 7;
 }

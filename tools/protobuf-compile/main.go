@@ -1,5 +1,5 @@
 // Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: BUSL-1.1
+// SPDX-License-Identifier: MPL-2.0
 
 // protobuf-compile is a helper tool for running protoc against all of the
 // .proto files in this repository using specific versions of protoc and

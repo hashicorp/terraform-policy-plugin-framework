@@ -19,7 +19,7 @@ updates:
       - build
       - security
     reviewers:
-      - hashicorp/terraform-core
+      - hashicorp/team-tf-policy
     groups:
       github-actions-breaking:
         update-types:

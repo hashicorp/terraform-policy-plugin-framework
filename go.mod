@@ -1,16 +1,16 @@
 module github.com/hashicorp/terraform-policy-plugin-framework
 
-go 1.23.3
+go 1.25.0
 
 require (
-	github.com/google/go-cmp v0.6.0
+	github.com/google/go-cmp v0.7.0
 	github.com/hashicorp/copywrite v0.22.0
 	github.com/hashicorp/go-hclog v1.5.0
 	github.com/hashicorp/go-plugin v1.0.1
 	github.com/zclconf/go-cty v1.15.0
 	github.com/zclconf/go-cty-debug v0.0.0-20240509010212-0d6042c53940
-	google.golang.org/grpc v1.68.0
-	google.golang.org/protobuf v1.35.2
+	google.golang.org/grpc v1.84.0
+	google.golang.org/protobuf v1.36.12
 )
 
 require (
@@ -61,14 +61,14 @@ require (
 	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	go.mongodb.org/mongo-driver v1.17.3 // indirect
-	golang.org/x/crypto v0.38.0 // indirect
+	golang.org/x/crypto v0.54.0 // indirect
 	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
-	golang.org/x/net v0.40.0 // indirect
-	golang.org/x/oauth2 v0.23.0 // indirect
-	golang.org/x/sync v0.14.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/term v0.32.0 // indirect
-	golang.org/x/text v0.25.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect
+	golang.org/x/net v0.57.0 // indirect
+	golang.org/x/oauth2 v0.36.0 // indirect
+	golang.org/x/sync v0.22.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/term v0.45.0 // indirect
+	golang.org/x/text v0.41.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260706201446-f0a921348800 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
